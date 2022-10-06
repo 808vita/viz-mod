@@ -6,371 +6,247 @@ import "./App.css";
 
 import MyResponsiveChoropleth from "./MyResponsiveChoropleth";
 import { TagCloud } from "react-tagcloud";
-
-// import { data } from "./mapData";
-
-// import assignmentData from "./assignmentData.json";
+import InfoCard from "./component/InfoCard";
 
 function App({ assignmentData }) {
-	// const [dataFromDb, setDataFromDb] = useState([]);
+  let filteredByYear = _.groupBy(assignmentData, "year");
 
-	// const getVizDataFromDb = async () => {
-	// 	const response = await fetch("/api/data");
-	// 	const data = await response.json();
-	// 	setDataFromDb(data);
-	// };
-	// const logData = async () => await console.log(dataFromDb);
-	// const loadData = async () => await console.log(dataFromDb);
+  // console.log(filteredByYear);
+  let uniqueYears = [...new Set(assignmentData.map((e) => e.year))];
 
-	// useEffect(() => {
-	// 	console.log("refreshed");
-	// 	getVizDataFromDb();
-	// }, []);
+  // const [content, setContent] = useState("");
 
-	// logData();
+  const [selectedYear, setSelectedYear] = useState(uniqueYears[0]);
+  const [selectedYearData, setSelectedYearData] = useState(
+    filteredByYear[selectedYear]
+  );
 
-	let filteredByYear = _.groupBy(assignmentData, "year");
+  const [selectedTopic, setSelectedTopic] = useState("oil");
+  const [selectedCardData, setSelectedCardData] = useState(
+    _.groupBy(selectedYearData, "topic")[selectedTopic]
+  );
 
-	// console.log(filteredByYear);
-	let uniqueYears = [...new Set(assignmentData.map((e) => e.year))];
+  const [selectedCountry, setSelectedCountry] = useState("All");
 
-	// const [content, setContent] = useState("");
+  const vizOptions = ["intensity", "relevance", "likelihood"];
+  const [selectedViz, setSelectedViz] = useState(vizOptions[0]);
 
-	const [selectedYear, setSelectedYear] = useState(uniqueYears[0]);
-	const [selectedYearData, setSelectedYearData] = useState(
-		filteredByYear[selectedYear]
-	);
+  const countrySelection = (id) => {
+    if (id === "reset") {
+      setSelectedCardData(_.groupBy(selectedYearData, "topic")["oil"]);
+      setSelectedTopic(() => "oil");
+      setCountriesMap(countriesArray);
+      return;
+    }
 
-	const [selectedTopic, setSelectedTopic] = useState("oil");
-	const [selectedCardData, setSelectedCardData] = useState(
-		_.groupBy(selectedYearData, "topic")[selectedTopic]
-	);
+    setSelectedCountry(id);
+    setSelectedCardData(_.groupBy(selectedYearData, "id")[id]);
+    console.log(_.groupBy(selectedYearData, "id")[id]);
+    setCountriesMap(_.groupBy(countriesArray, "id")[id]);
+  };
+  let uniqueTopics = [...new Set(selectedYearData.map((e) => e.topic))];
 
-	const [selectedCountry, setSelectedCountry] = useState("All");
+  let uniqueCountries = [...new Set(selectedCardData.map((e) => e.id))];
 
-	const vizOptions = ["intensity", "relevance", "likelihood"];
-	const [selectedViz, setSelectedViz] = useState(vizOptions[0]);
+  let filteredByTopic = _.groupBy(selectedYearData, "topic");
 
-	const countrySelection = (id) => {
-		if (id === "reset") {
-			setSelectedCardData(_.groupBy(selectedYearData, "topic")["oil"]);
-			setSelectedTopic(() => "oil");
-			setCountriesMap(countriesArray);
-			return;
-		}
+  let countriesObj = {};
+  let countriesArray = [];
 
-		setSelectedCountry(id);
-		setSelectedCardData(_.groupBy(selectedYearData, "id")[id]);
-		console.log(_.groupBy(selectedYearData, "id")[id]);
-		setCountriesMap(_.groupBy(countriesArray, "id")[id]);
+  uniqueCountries.map((e) =>
+    countriesArray.push(
+      (countriesObj["id"] = {
+        id: e,
+        value: Math.round(
+          _.meanBy(
+            _.groupBy(selectedCardData, "id")[e],
+            (item) => item[selectedViz]
+          )
+        ).toFixed(1),
+      })
+    )
+  );
+  // console.log(countriesArray);
 
-		// console.log("here///////////");
-		// console.log(id);
-		// console.log(_.groupBy(selectedYearData, "id")[id]);
-	};
-	let uniqueTopics = [...new Set(selectedYearData.map((e) => e.topic))];
-	//needed for initial topics
+  const [countriesMap, setCountriesMap] = useState(countriesArray);
 
-	let uniqueCountries = [...new Set(selectedCardData.map((e) => e.id))];
+  const topicsArrayCount = [];
 
-	// let uniqueSectors = [...new Set(selectedYearData.map((e) => e.sector))];
-	// let uniqueRegions = [...new Set(selectedYearData.map((e) => e.region))];
-	// let uniquePestles = [...new Set(selectedYearData.map((e) => e.pestle))];
-	// let uniqueSources = [...new Set(selectedYearData.map((e) => e.source))];
+  uniqueTopics.map((e) =>
+    topicsArrayCount.push(
+      (countriesObj["id"] = {
+        id: e,
+        count: filteredByTopic[e].length,
+      })
+    )
+  );
 
-	// console.log("unique countries array " + uniqueCountries);
-	// console.log(uniqueTopics);
-	// console.log(uniqueSectors);
-	// console.log(uniqueRegions);
-	// console.log(uniquePestles);
-	// console.log(uniqueSources);
-	// console.log(uniqueYears);
+  // console.log(topicsArrayCount);
 
-	let filteredByTopic = _.groupBy(selectedYearData, "topic");
+  const handleYearButton = (e) => {
+    setSelectedYear(e.target.innerText);
+    setSelectedYearData(filteredByYear[e.target.innerText]);
+    // setSelectedCardData(filteredByYear[e.target.innerText]);
+    let newSelectedCardData = _.groupBy(
+      filteredByYear[e.target.innerText],
+      "topic"
+    )["oil"];
+    setSelectedTopic("oil");
+    setSelectedCountry("All");
+    setSelectedCardData(() => newSelectedCardData);
+    console.log(newSelectedCardData);
 
-	// console.log(filteredByTopic);
+    uniqueCountries = [...new Set(newSelectedCardData.map((e) => e.id))];
+    countriesObj = {};
+    countriesArray = [];
 
-	// let filteredByCountry = _.groupBy(selectedCardData, "id");
+    uniqueCountries.map((e) =>
+      countriesArray.push(
+        (countriesObj["id"] = {
+          id: e,
+          value: Math.round(
+            _.meanBy(
+              _.groupBy(newSelectedCardData, "id")[e],
+              (item) => item[selectedViz]
+            )
+          ).toFixed(1),
+        })
+      )
+    );
 
-	// console.log(filteredByCountry);
+    setCountriesMap(() => countriesArray);
+    // countrySelection("reset");
+  };
 
-	let countriesObj = {};
-	let countriesArray = [];
+  const tagSelector = (topic) => {
+    console.log(topic);
 
-	uniqueCountries.map((e) =>
-		countriesArray.push(
-			(countriesObj["id"] = {
-				id: e,
-				value: Math.round(
-					_.meanBy(
-						_.groupBy(selectedCardData, "id")[e],
-						(item) => item[selectedViz]
-					)
-				).toFixed(1),
-			})
-		)
-	);
-	// console.log(countriesArray);
+    const tagFiltered = _.groupBy(selectedYearData, "topic")[topic];
 
-	const [countriesMap, setCountriesMap] = useState(countriesArray);
+    console.log(tagFiltered);
 
-	const topicsArrayCount = [];
+    let newUniqueCountries = [...new Set(tagFiltered.map((e) => e.id))];
 
-	uniqueTopics.map((e) =>
-		topicsArrayCount.push(
-			(countriesObj["id"] = {
-				id: e,
-				count: filteredByTopic[e].length,
-			})
-		)
-	);
+    console.log(newUniqueCountries);
 
-	// console.log(topicsArrayCount);
+    let newGroupedArray = _.groupBy(tagFiltered, "topic");
 
-	const customRenderer = (tag, size, color) => (
-		<span
-			key={tag.id}
-			className="tag-cloud-tag"
-			style={{
-				animation: "blinker 5s ease-in-out infinite",
-				animationDelay: `${Math.random() * 20}s`,
-				fontSize: `${size / 2}em`,
+    console.log(newGroupedArray);
+    const newArray = [];
 
-				margin: "3px",
-				padding: "3px",
-				display: "inline-block",
-			}}
-		>
-			{tag.id}
-		</span>
-	);
+    newUniqueCountries.map((e) =>
+      newArray.push(
+        (countriesObj["id"] = {
+          id: e,
+          value: Math.round(
+            _.meanBy(
+              _.groupBy(tagFiltered, "id")[e],
+              (item) => item[selectedViz]
+            )
+          ).toFixed(1),
+        })
+      )
+    );
 
-	const handleYearButton = (e) => {
-		setSelectedYear(e.target.innerText);
-		setSelectedYearData(filteredByYear[e.target.innerText]);
-		// setSelectedCardData(filteredByYear[e.target.innerText]);
-		let newSelectedCardData = _.groupBy(
-			filteredByYear[e.target.innerText],
-			"topic"
-		)["oil"];
-		setSelectedTopic("oil");
-		setSelectedCountry("All");
-		setSelectedCardData(() => newSelectedCardData);
-		console.log(newSelectedCardData);
+    console.log(_.groupBy(tagFiltered, "id").USA);
 
-		uniqueCountries = [...new Set(newSelectedCardData.map((e) => e.id))];
-		countriesObj = {};
-		countriesArray = [];
+    console.log("here////");
+    console.log(_.meanBy(newGroupedArray[topic], (item) => item.intensity));
+    console.log(newArray);
+    setSelectedCardData(tagFiltered);
+    setCountriesMap(newArray);
+  };
 
-		uniqueCountries.map((e) =>
-			countriesArray.push(
-				(countriesObj["id"] = {
-					id: e,
-					value: Math.round(
-						_.meanBy(
-							_.groupBy(newSelectedCardData, "id")[e],
-							(item) => item[selectedViz]
-						)
-					).toFixed(1),
-				})
-			)
-		);
+  const selectTag = (tag) => {
+    try {
+      // setSelectedCardData(selectedYearData);
+      setSelectedTopic(tag.id);
+      setSelectedCountry("All");
+      tagSelector(tag.id);
+    } catch {
+      countrySelection("reset");
+    }
+  };
 
-		setCountriesMap(() => countriesArray);
-		// countrySelection("reset");
-	};
-	const tagSelector = (topic) => {
-		console.log(topic);
+  const handleVizButton = (e) => {
+    let newVizarray = _.groupBy(filteredByYear[selectedYear], "topic")["oil"];
+    uniqueCountries = [...new Set(newVizarray.map((e) => e.id))];
+    countriesObj = {};
+    countriesArray = [];
 
-		const tagFiltered = _.groupBy(selectedYearData, "topic")[topic];
+    uniqueCountries.map((country) =>
+      countriesArray.push(
+        (countriesObj["id"] = {
+          id: country,
+          value: Math.round(
+            _.meanBy(_.groupBy(newVizarray, "id")[country], (item) => item[e])
+          ).toFixed(1),
+        })
+      )
+    );
 
-		console.log(tagFiltered);
+    setCountriesMap(() => countriesArray);
 
-		let newUniqueCountries = [...new Set(tagFiltered.map((e) => e.id))];
+    setSelectedViz(e);
+    setSelectedTopic("oil");
+    setSelectedCountry("all");
+  };
 
-		console.log(newUniqueCountries);
+  return (
+    <>
+      <div className="year-box">
+        <div className="selection-box">
+          <p>Selected Year : </p>
+          <span>{selectedYear}</span>
+        </div>
+        {uniqueYears.map((item) => (
+          <button
+            key={item}
+            onClick={(e) => {
+              handleYearButton(e);
+            }}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+      <div className="year-box">
+        <div className="selection-box">
+          <p>Selected Viz : </p>
+          <span> {selectedViz.toUpperCase()}</span>
+        </div>
+        {vizOptions.map((item) => (
+          <button
+            key={item}
+            onClick={(e) => {
+              handleVizButton(e.target.innerText.toLowerCase());
+            }}
+          >
+            {item.toUpperCase()}
+          </button>
+        ))}
+      </div>
 
-		let newGroupedArray = _.groupBy(tagFiltered, "topic");
-
-		console.log(newGroupedArray);
-		const newArray = [];
-
-		newUniqueCountries.map((e) =>
-			newArray.push(
-				(countriesObj["id"] = {
-					id: e,
-					value: Math.round(
-						_.meanBy(
-							_.groupBy(tagFiltered, "id")[e],
-							(item) => item[selectedViz]
-						)
-					).toFixed(1),
-				})
-			)
-		);
-
-		console.log(_.groupBy(tagFiltered, "id").USA);
-
-		console.log("here////");
-		console.log(_.meanBy(newGroupedArray[topic], (item) => item.intensity));
-		console.log(newArray);
-		setSelectedCardData(tagFiltered);
-		setCountriesMap(newArray);
-	};
-
-	const handleVizButton = (e) => {
-		let newVizarray = _.groupBy(filteredByYear[selectedYear], "topic")["oil"];
-		uniqueCountries = [...new Set(newVizarray.map((e) => e.id))];
-		countriesObj = {};
-		countriesArray = [];
-
-		uniqueCountries.map((country) =>
-			countriesArray.push(
-				(countriesObj["id"] = {
-					id: country,
-					value: Math.round(
-						_.meanBy(_.groupBy(newVizarray, "id")[country], (item) => item[e])
-					).toFixed(1),
-				})
-			)
-		);
-
-		setCountriesMap(() => countriesArray);
-
-		setSelectedViz(e);
-		setSelectedTopic("oil");
-		setSelectedCountry("all");
-	};
-
-	return (
-		<>
-			<div className="year-box">
-				<div className="selection-box">
-					<p>Selected Year : </p>
-					<span>{selectedYear}</span>
-				</div>
-				{uniqueYears.map((item) => (
-					<button
-						key={item}
-						onClick={(e) => {
-							handleYearButton(e);
-						}}
-					>
-						{item}
-					</button>
-				))}
-			</div>
-			<div className="year-box">
-				<div className="selection-box">
-					<p>Selected Viz : </p>
-					<span> {selectedViz.toUpperCase()}</span>
-				</div>
-				{vizOptions.map((item) => (
-					<button
-						key={item}
-						onClick={(e) => {
-							handleVizButton(e.target.innerText.toLowerCase());
-						}}
-					>
-						{item.toUpperCase()}
-					</button>
-				))}
-			</div>
-			<div className="clouds">
-				<div className="year-box">
-					<p>Selected Topic :</p>
-					<span>{selectedTopic}</span>
-				</div>
-				<TagCloud
-					tags={topicsArrayCount}
-					minSize={1.75}
-					maxSize={8}
-					renderer={customRenderer}
-					className="simple-cloud"
-					onClick={
-						(tag) => {
-							try {
-								// setSelectedCardData(selectedYearData);
-								setSelectedTopic(tag.id);
-								setSelectedCountry("All");
-								tagSelector(tag.id);
-							} catch {
-								countrySelection("reset");
-							}
-						}
-						// console.log(`'${tag.id}' was selected!`
-					}
-				/>
-			</div>
-
-			<div className="container">
-				<MyResponsiveChoropleth
-					countriesMap={countriesMap}
-					countrySelection={countrySelection}
-				/>
-			</div>
-			<div className="year-box">
-				<p>Selected Country :</p>
-				<span>{selectedCountry}</span>
-			</div>
-			<div className="card-box">
-				{selectedCardData.map(
-					(item) =>
-						item.topic === selectedTopic && (
-							<div key={item.title} className="card">
-								<div className="info-box">
-									<p>
-										<span>Sector : </span> {item.sector}
-									</p>
-									<p>
-										<span>Topic : </span> {item.topic}
-									</p>
-									<p>
-										<span>Pestle : </span> {item.pestle}
-									</p>
-									<p>
-										<span>Region : </span> {item.region}
-									</p>
-
-									<p>
-										<span>Country : </span>
-										{item.country}
-									</p>
-								</div>
-
-								<div className="data">
-									<p>
-										<span>Insight : </span>
-										{item.insight}
-									</p>
-									<p> {item.title}</p>
-								</div>
-
-								<div className="insight">
-									<div className="data-box">
-										<span>Relevance</span>
-										<p> {item.relevance}</p>
-									</div>
-									<div className="data-box">
-										<span>Likelihood</span>
-										<p> {item.likelihood}</p>
-									</div>
-									<div className="data-box">
-										<span>Intensity</span>
-										<p> {item.intensity}</p>
-									</div>
-								</div>
-								<div className="info-box source">
-									<p>
-										<span>Source : </span> {item.source}
-									</p>
-								</div>
-							</div>
-						)
-				)}
-			</div>
-		</>
-	);
+      <div className="container">
+        <MyResponsiveChoropleth
+          countriesMap={countriesMap}
+          countrySelection={countrySelection}
+        />
+      </div>
+      <div className="year-box">
+        <p>Selected Country :</p>
+        <span>{selectedCountry}</span>
+      </div>
+      <div className="card-box">
+        {selectedCardData.map(
+          (item) =>
+            item.topic === selectedTopic && (
+              <InfoCard key={item.title} item={item} />
+            )
+        )}
+      </div>
+    </>
+  );
 }
 
 export default App;

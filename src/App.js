@@ -7,6 +7,7 @@ import "./App.css";
 import MyResponsiveChoropleth from "./MyResponsiveChoropleth";
 import { TagCloud } from "react-tagcloud";
 import InfoCard from "./component/InfoCard";
+import Selector from "./component/Selector";
 
 function App({ assignmentData }) {
   let filteredByYear = _.groupBy(assignmentData, "year");
@@ -84,13 +85,11 @@ function App({ assignmentData }) {
   // console.log(topicsArrayCount);
 
   const handleYearButton = (e) => {
-    setSelectedYear(e.target.innerText);
-    setSelectedYearData(filteredByYear[e.target.innerText]);
+    console.log(e);
+    setSelectedYear(e);
+    setSelectedYearData(filteredByYear[e]);
     // setSelectedCardData(filteredByYear[e.target.innerText]);
-    let newSelectedCardData = _.groupBy(
-      filteredByYear[e.target.innerText],
-      "topic"
-    )["oil"];
+    let newSelectedCardData = _.groupBy(filteredByYear[e], "topic")["oil"];
     setSelectedTopic("oil");
     setSelectedCountry("All");
     setSelectedCardData(() => newSelectedCardData);
@@ -194,6 +193,9 @@ function App({ assignmentData }) {
 
   return (
     <>
+      <div>
+        <Selector handleYearButton={handleYearButton} />
+      </div>
       <div className="year-box">
         <div className="selection-box">
           <p>Selected Year : </p>
@@ -203,7 +205,7 @@ function App({ assignmentData }) {
           <button
             key={item}
             onClick={(e) => {
-              handleYearButton(e);
+              handleYearButton(e.target.innerText);
             }}
           >
             {item}

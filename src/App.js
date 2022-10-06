@@ -206,10 +206,10 @@ function App({ assignmentData }) {
           countrySelection={countrySelection}
         />
       </div>
-      <div className="year-box">
+      {/* <div className="year-box">
         <p>Selected Country :</p>
         <span>{selectedCountry}</span>
-      </div>
+      </div> */}
     </>
   );
 }

@@ -8,6 +8,8 @@ import MyResponsiveChoropleth from "./MyResponsiveChoropleth";
 import { TagCloud } from "react-tagcloud";
 import InfoCard from "./component/InfoCard";
 import Selector from "./component/Selector";
+import OptionSelector from "./component/OptionSelector";
+import SliderSizes from "./component/Slider";
 
 function App({ assignmentData }) {
   let filteredByYear = _.groupBy(assignmentData, "year");
@@ -211,6 +213,12 @@ function App({ assignmentData }) {
             {item}
           </button>
         ))}
+      </div>
+      <div>
+        <OptionSelector handleVizButton={handleVizButton} />
+      </div>
+      <div>
+        <SliderSizes />
       </div>
       <div className="year-box">
         <div className="selection-box">

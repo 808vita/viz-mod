@@ -1,26 +1,32 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
-import useDebounce from "../hooks/useDebounce";
-import { useState } from "react";
 
-export default function SliderSizes({ silderFilter }) {
+import { useState, useEffect } from "react";
+import useDebounce from "../hooks/useDebounce";
+
+export default function SliderSizes({ silderFilter, selectedViz }) {
   const [sliderVal, setSliderVal] = useState(50);
   const oof = useDebounce(sliderVal, 500);
+  useEffect(() => {
+    setTimeout(() => {
+      silderFilter(sliderVal);
+    }, 500);
+  }, [oof]);
 
-  const handleChange = (val) => {
-    setSliderVal(val);
-    silderFilter(oof);
-  };
+  useEffect(() => {
+    silderFilter(50);
+    setSliderVal(50);
+  }, [selectedViz]);
 
   return (
     <Box width={300}>
       <Slider
         max={50}
         defaultValue={50}
+        value={sliderVal}
         aria-label="Default"
         valueLabelDisplay="auto"
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={(e) => setSliderVal(e.target.value)}
       />
     </Box>
   );

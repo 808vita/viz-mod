@@ -119,56 +119,6 @@ function App({ assignmentData }) {
     // countrySelection("reset");
   };
 
-  const tagSelector = (topic) => {
-    console.log(topic);
-
-    const tagFiltered = _.groupBy(selectedYearData, "topic")[topic];
-
-    console.log(tagFiltered);
-
-    let newUniqueCountries = [...new Set(tagFiltered.map((e) => e.id))];
-
-    console.log(newUniqueCountries);
-
-    let newGroupedArray = _.groupBy(tagFiltered, "topic");
-
-    console.log(newGroupedArray);
-    const newArray = [];
-
-    newUniqueCountries.map((e) =>
-      newArray.push(
-        (countriesObj["id"] = {
-          id: e,
-          value: Math.round(
-            _.meanBy(
-              _.groupBy(tagFiltered, "id")[e],
-              (item) => item[selectedViz]
-            )
-          ).toFixed(1),
-        })
-      )
-    );
-
-    console.log(_.groupBy(tagFiltered, "id").USA);
-
-    console.log("here////");
-    console.log(_.meanBy(newGroupedArray[topic], (item) => item.intensity));
-    console.log(newArray);
-    setSelectedCardData(tagFiltered);
-    setCountriesMap(newArray);
-  };
-
-  const selectTag = (tag) => {
-    try {
-      // setSelectedCardData(selectedYearData);
-      setSelectedTopic(tag.id);
-      setSelectedCountry("All");
-      tagSelector(tag.id);
-    } catch {
-      countrySelection("reset");
-    }
-  };
-
   const handleVizButton = (e) => {
     let newVizarray = _.groupBy(filteredByYear[selectedYear], "topic")["oil"];
     uniqueCountries = [...new Set(newVizarray.map((e) => e.id))];
@@ -194,8 +144,27 @@ function App({ assignmentData }) {
   };
 
   const silderFilter = (val) => {
+    let newVizarray = _.groupBy(filteredByYear[selectedYear], "topic")["oil"];
+    uniqueCountries = [...new Set(newVizarray.map((e) => e.id))];
+    countriesObj = {};
+    countriesArray = [];
+
+    uniqueCountries.map((country) =>
+      countriesArray.push(
+        (countriesObj["id"] = {
+          id: country,
+          value: Math.round(
+            _.meanBy(
+              _.groupBy(newVizarray, "id")[country],
+              (item) => item[selectedViz]
+            )
+          ).toFixed(1),
+        })
+      )
+    );
+
     let newCountriesArray = _.filter(
-      countriesMap,
+      countriesArray,
       (item) => Number(item.value) <= val
     );
     console.log(newCountriesArray);
@@ -208,7 +177,7 @@ function App({ assignmentData }) {
       newSelectedCardData,
       (item) => item[selectedViz] < val
     );
-    console.log(sliderSelectedCardData);
+    // console.log(sliderSelectedCardData);
     console.log(selectedViz);
     console.log(selectedYear);
     setSelectedCardData(() => sliderSelectedCardData);
@@ -216,32 +185,21 @@ function App({ assignmentData }) {
 
   return (
     <>
-      <div>
-        <Selector handleYearButton={handleYearButton} />
-      </div>
-      <div className="year-box">
-        <div className="selection-box">
-          <p>Selected Year : </p>
-          <span>{selectedYear}</span>
+      <div className="d-flex-center">
+        <div>
+          <Selector handleYearButton={handleYearButton} />
         </div>
-        {uniqueYears.map((item) => (
-          <button
-            key={item}
-            onClick={(e) => {
-              handleYearButton(e.target.innerText);
-            }}
-          >
-            {item}
-          </button>
-        ))}
+        <div style={{ marginTop: "20px" }}>
+          <OptionSelector handleVizButton={handleVizButton} />
+          <div>
+            <SliderSizes
+              silderFilter={silderFilter}
+              selectedViz={selectedViz}
+            />
+          </div>
+        </div>
       </div>
-      <div>
-        <OptionSelector handleVizButton={handleVizButton} />
-      </div>
-      <div>
-        <SliderSizes silderFilter={silderFilter} />
-      </div>
-      <div className="year-box">
+      {/* <div className="year-box">
         <div className="selection-box">
           <p>Selected Viz : </p>
           <span> {selectedViz.toUpperCase()}</span>
@@ -256,7 +214,7 @@ function App({ assignmentData }) {
             {item.toUpperCase()}
           </button>
         ))}
-      </div>
+      </div> */}
 
       <div className="container">
         <MyResponsiveChoropleth
@@ -268,14 +226,14 @@ function App({ assignmentData }) {
         <p>Selected Country :</p>
         <span>{selectedCountry}</span>
       </div>
-      <div className="card-box">
+      {/* <div className="card-box">
         {selectedCardData.map(
           (item) =>
             item.topic === selectedTopic && (
               <InfoCard key={item.title} item={item} />
             )
         )}
-      </div>
+      </div> */}
     </>
   );
 }

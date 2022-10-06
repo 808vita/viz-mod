@@ -199,22 +199,6 @@ function App({ assignmentData }) {
           </div>
         </div>
       </div>
-      {/* <div className="year-box">
-        <div className="selection-box">
-          <p>Selected Viz : </p>
-          <span> {selectedViz.toUpperCase()}</span>
-        </div>
-        {vizOptions.map((item) => (
-          <button
-            key={item}
-            onClick={(e) => {
-              handleVizButton(e.target.innerText.toLowerCase());
-            }}
-          >
-            {item.toUpperCase()}
-          </button>
-        ))}
-      </div> */}
 
       <div className="container">
         <MyResponsiveChoropleth
@@ -226,14 +210,6 @@ function App({ assignmentData }) {
         <p>Selected Country :</p>
         <span>{selectedCountry}</span>
       </div>
-      {/* <div className="card-box">
-        {selectedCardData.map(
-          (item) =>
-            item.topic === selectedTopic && (
-              <InfoCard key={item.title} item={item} />
-            )
-        )}
-      </div> */}
     </>
   );
 }

@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 export default function OptionSelector({ handleVizButton }) {
-  const [option, setOption] = React.useState("INTENSITY");
+  const [option, setOption] = React.useState("RELEVANCE");
 
   const handleChange = (event) => {
     handleVizButton(event.target.value.toLowerCase());

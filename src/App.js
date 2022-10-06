@@ -32,7 +32,7 @@ function App({ assignmentData }) {
   const [selectedCountry, setSelectedCountry] = useState("All");
 
   const vizOptions = ["intensity", "relevance", "likelihood"];
-  const [selectedViz, setSelectedViz] = useState(vizOptions[0]);
+  const [selectedViz, setSelectedViz] = useState(vizOptions[1]);
 
   const countrySelection = (id) => {
     if (id === "reset") {
@@ -187,10 +187,31 @@ function App({ assignmentData }) {
     );
 
     setCountriesMap(() => countriesArray);
-
+    console.log(countriesArray);
     setSelectedViz(e);
     setSelectedTopic("oil");
     setSelectedCountry("all");
+  };
+
+  const silderFilter = (val) => {
+    let newCountriesArray = _.filter(
+      countriesMap,
+      (item) => Number(item.value) <= val
+    );
+    console.log(newCountriesArray);
+    setCountriesMap(() => newCountriesArray);
+
+    let newSelectedCardData = _.groupBy(filteredByYear[selectedYear], "topic")[
+      "oil"
+    ];
+    let sliderSelectedCardData = _.filter(
+      newSelectedCardData,
+      (item) => item[selectedViz] < val
+    );
+    console.log(sliderSelectedCardData);
+    console.log(selectedViz);
+    console.log(selectedYear);
+    setSelectedCardData(() => sliderSelectedCardData);
   };
 
   return (
@@ -218,7 +239,7 @@ function App({ assignmentData }) {
         <OptionSelector handleVizButton={handleVizButton} />
       </div>
       <div>
-        <SliderSizes />
+        <SliderSizes silderFilter={silderFilter} />
       </div>
       <div className="year-box">
         <div className="selection-box">
